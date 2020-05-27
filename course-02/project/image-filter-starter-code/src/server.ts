@@ -17,17 +17,21 @@ import express, { Router, Request, Response } from 'express';
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
-  app.get("/filteredimage/",async (req: Request, res: Response) => {
+   app.get("/filteredimage/", async(req: Request, res: Response) => {
     let {image_url} = req.query;
 
     if(!image_url) {
         return res.status(400)
                   .send(`please enter a valid url`);
     }
-    let image = await filterImageFromURL(image_url);
-
-      return res.status(200).sendFile( image);
-
+    let path;
+    try {
+      path = await filterImageFromURL(image_url);
+      
+    }catch(err) {
+      return res.status(404).send('Image not found');
+    }
+    return res.status(200).sendFile(path);
   });
   // endpoint to filter an image from a public url.
   // IT SHOULD
