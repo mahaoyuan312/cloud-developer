@@ -3,6 +3,8 @@ import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 import { parentPort } from 'worker_threads';
 import express, { Router, Request, Response } from 'express';
+// import { filter, try} from 'bluebird';
+// import { reject } from 'bluebird';
 
 (async () => {
 
@@ -21,17 +23,19 @@ import express, { Router, Request, Response } from 'express';
     let {image_url} = req.query;
 
     if(!image_url) {
-        return res.status(400)
+         res.status(400)
                   .send(`please enter a valid url`);
     }
-    let path;
-    try {
-      path = await filterImageFromURL(image_url);
+    
+    let filteredimg: string;
+    try{
+       filteredimg = await filterImageFromURL(image_url);
       
     }catch(err) {
-      return res.status(404).send('Image not found');
+       res.status(415).send(err);
     }
-    return res.status(200).sendFile(path);
+    res.status(200).sendFile(filteredimg, () =>{deleteLocalFiles([filteredimg])});
+  
   });
   // endpoint to filter an image from a public url.
   // IT SHOULD
